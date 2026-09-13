@@ -1,7 +1,6 @@
 import { BuiltInAgent } from "@copilotkit/runtime/v2";
 import { resolveModel } from "./model";
 import { SYSTEM_PROMPT } from "./prompt";
-import { workplaceMcpServers } from "./capabilities/workplace";
 
 /**
  * The agent factory.
@@ -19,9 +18,7 @@ import { workplaceMcpServers } from "./capabilities/workplace";
  * Nothing else in the kit changes. That is the point of AG-UI.
  */
 export type AgentFactoryOptions = {
-  /** Disable workplace MCP for surfaces that should only see local app tools. */
-  workplace?: boolean;
-  /** Override the default incident prompt for a surface-specific starter. */
+  /** Override the default prompt for a surface-specific starter. */
   prompt?: string;
 };
 
@@ -31,15 +28,10 @@ export function makeAgent(threadId: string, options: AgentFactoryOptions = {}) {
     prompt: options.prompt ?? SYSTEM_PROMPT,
 
     // NOT optional in practice. maxSteps defaults to 1, which means the agent
-    // can call one tool and then stops — before it ever sees the result. Any
-    // agent with tools needs room to loop.
+    // can call one tool and then stops — before it ever sees the result. The
+    // triage agent needs room to read the inbox and call triage_message per
+    // message, so give it several steps.
     maxSteps: 10,
-
-    // The workplace, when one is configured. Empty array when it is not, so the
-    // agent is never handed tools that would 401. Add your own MCP servers here
-    // the same way — note HTTP transport takes `options` (with a wrapped
-    // `options.fetch` for auth), not `headers`.
-    mcpServers: options.workplace === false ? [] : [...workplaceMcpServers()],
   });
   agent.threadId = threadId;
   return agent;

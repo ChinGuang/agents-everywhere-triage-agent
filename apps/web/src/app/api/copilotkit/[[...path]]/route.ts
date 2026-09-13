@@ -23,9 +23,10 @@ import {
 } from "@copilotkit/runtime/v2";
 import { makeAgent } from "agent-core";
 
-// Web writes use /api/followups after a browser approval. Never expose raw MCP writes here.
+// A fresh triage agent per resolution. Frontend tools (triage_message) and page
+// context are bridged from the browser by CopilotKit — no server tools here.
 const runtime = new CopilotRuntime({
-  agents: () => ({ default: makeAgent(randomUUID(), { workplace: false }) }),
+  agents: () => ({ default: makeAgent(randomUUID()) }),
 });
 
 const app = createCopilotHonoHandler({

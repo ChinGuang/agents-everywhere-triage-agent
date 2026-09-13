@@ -4,8 +4,8 @@ import "@copilotkit/react-core/v2/styles.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Incident assistant — Agents, Everywhere",
-  description: "Pick an incident, ask your assistant, and add a follow-up.",
+  title: "Triage agent — Agents, Everywhere",
+  description: "Customer messages arrive over Telegram; the agent triages them into feedback, bug, or question.",
 };
 
 export default function RootLayout({

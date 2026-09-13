@@ -10,14 +10,10 @@
   },
   "workspaces": [
     "packages/*",
-    "apps/channel",
     "apps/web"
   ],
   "scripts": {
     "dev": "npm run dev:web",
-    "dev:slack": "npm run dev --workspace channel",
-    "channel:status": "npx copilotkit@latest channels status --json",
-    "channel:setup": "npx copilotkit@latest channels setup",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "dev:web": "npm run dev --workspace web",
     "test": "npm run test --workspaces --if-present",
