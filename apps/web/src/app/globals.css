@@ -261,6 +261,13 @@ p {
   flex: 1;
   min-height: 0;
 }
+/* CopilotKit's chat welcome/greeting text is faint by default, which is hard to
+   read and doesn't match the Penpot design's dark assistant text. Force it onto
+   the app's ink token so it's legible and on-brand. */
+.ck-chat [data-testid="copilot-welcome-screen"],
+.ck-chat [data-testid="copilot-welcome-screen"] * {
+  color: var(--text);
+}
 .ck-sr-only {
   position: absolute;
   width: 1px;
