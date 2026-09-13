@@ -1,12 +1,15 @@
 import React from "react";
-import type { IssueType } from "@/lib/inbox/types";
+import type { IssueType, TelegramReply } from "@/lib/inbox/types";
+import { TelegramReplyApproval } from "./telegram-reply-approval";
 
 // Tool arguments arrive incrementally, before the schema settles — every field
 // is optional here, same as the starter's IncidentCard.
 export interface TriageCardProps {
+  messageId?: string;
   type?: string;
   summary?: string;
   text?: string;
+  reply?: TelegramReply;
 }
 
 const STYLE: Record<IssueType, { label: string; color: string; badgeBg: string }> = {
@@ -43,7 +46,7 @@ export function TriageBadge({ type }: { type?: string }) {
 }
 
 /** Generative-UI Triage Card: Issue Type + one-line summary for a Message. */
-export function TriageCard({ type, summary, text }: TriageCardProps) {
+export function TriageCard({ messageId, type, summary, text, reply }: TriageCardProps) {
   const s = styleFor(type);
   return (
     <article className="ck-card" style={{ borderLeftColor: s.color }}>
@@ -54,6 +57,9 @@ export function TriageCard({ type, summary, text }: TriageCardProps) {
           <p className="ck-muted" style={{ margin: 0, fontSize: 13 }}>
             {text}
           </p>
+        ) : null}
+        {type === "question" && messageId && reply ? (
+          <TelegramReplyApproval messageId={messageId} reply={reply} />
         ) : null}
       </div>
     </article>

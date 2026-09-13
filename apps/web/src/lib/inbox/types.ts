@@ -13,6 +13,22 @@ export function isIssueType(value: unknown): value is IssueType {
 export interface TriageResult {
   type: IssueType;
   summary: string;
+  /** A proposed answer for a customer question. It must be approved before sending. */
+  reply?: TelegramReply;
+}
+
+export type TelegramReplyStatus = "draft" | "sending" | "sent" | "failed";
+
+/**
+ * A reply proposed by the assistant for a Telegram question. Keeping its state
+ * with the triage result makes the approval boundary visible after refreshes.
+ */
+export interface TelegramReply {
+  text: string;
+  status: TelegramReplyStatus;
+  sentAt?: number;
+  telegramMessageId?: number;
+  error?: string;
 }
 
 /**
