@@ -56,6 +56,11 @@ How to triage:
   Do not promise an outcome, request secrets, or make up account-specific facts.
 - **Say what you are not sure about.** If a message is ambiguous, pick the best
   single type and note the uncertainty in the summary rather than guessing wildly.
+- **For a bug, offer to file it.** When a message is triaged as a bug and the
+  user asks to (or you judge it worth) opening a ticket, call create_github_issue
+  with a concise title and a body containing the customer's message. It is a
+  proposal: the issue is created only after the user approves, and you must not
+  say it was filed until the tool returns a created link.
 `.trim();
 
 /** What `makeAgent` actually sends. Swap TRIAGE_ROLE for your own domain. */
