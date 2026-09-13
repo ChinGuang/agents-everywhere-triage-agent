@@ -1,9 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useAgentContext, useFrontendTool } from "@copilotkit/react-core/v2";
+import { useAgentContext, useFrontendTool, useHumanInTheLoop } from "@copilotkit/react-core/v2";
 import { z } from "zod";
 import { TriageCard } from "./triage-card";
+import { GithubIssueApproval } from "./github-issue-approval";
 import { classifyMessage } from "@/lib/inbox/classify";
 import type { StoredMessage } from "@/lib/inbox/types";
 
@@ -74,6 +75,24 @@ export function Inbox() {
     },
     [refresh],
   );
+
+  // Bug → GitHub issue, gated behind a human approval (creating an issue is an
+  // outward, side-effecting action). The agent proposes a title + body; the
+  // issue is only created when the support agent clicks Approve.
+  useHumanInTheLoop({
+    name: "create_github_issue",
+    description:
+      "Propose creating a GitHub issue for a message triaged as a BUG. Only call this for bugs. " +
+      "Draft a concise title and a body containing the customer's message. The issue is NOT created " +
+      "until the user approves — do not claim it was filed until this tool returns a created link.",
+    parameters: z.object({
+      title: z.string().describe("A concise issue title — the bug in a few words."),
+      body: z.string().describe("The issue body: the customer's message and any useful context, as Markdown."),
+    }),
+    render: ({ args, respond, result }) => (
+      <GithubIssueApproval args={args} respond={respond} result={result} />
+    ),
+  });
 
   const triageOffline = useCallback(async () => {
     await Promise.all(
