@@ -49,12 +49,15 @@ export function TriageBadge({ type }: { type?: string }) {
 export function TriageCard({ messageId, type, summary, text, reply }: TriageCardProps) {
   const s = styleFor(type);
   return (
-    <article className="ck-card" style={{ borderLeftColor: s.color }}>
+    // Set an explicit text color: rendered inside CopilotKit's chat stream the
+    // card would otherwise inherit the chat's faint message color and become
+    // unreadable (it looks fine in the inbox panel because it inherits --text there).
+    <article className="ck-card" style={{ borderLeftColor: s.color, color: "var(--text)" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <TriageBadge type={type} />
-        <p style={{ margin: 0, fontWeight: 600 }}>{summary || "Reading the message…"}</p>
+        <p style={{ margin: 0, fontWeight: 600, color: "var(--text)" }}>{summary || "Reading the message…"}</p>
         {text && text !== summary ? (
-          <p className="ck-muted" style={{ margin: 0, fontSize: 13 }}>
+          <p className="ck-muted" style={{ margin: 0, fontSize: 13, color: "var(--muted)" }}>
             {text}
           </p>
         ) : null}
