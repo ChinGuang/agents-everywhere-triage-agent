@@ -63,14 +63,25 @@ export function Inbox() {
           .describe("The exact `id` of a message from untriagedMessages, copied verbatim (e.g. \"1:1789...\")."),
         type: z.enum(["feedback", "bug", "question"]),
         summary: z.string().describe("A one-line summary of that message."),
+        draftReply: z
+          .string()
+          .optional()
+          .describe(
+            "For a question only: a concise, helpful answer to propose to the customer. This stays a draft until a human approves Send.",
+          ),
       }),
-      handler: async ({ messageId, type, summary }) => {
-        await postJson("/api/messages/triage", { id: messageId, type, summary });
+      handler: async ({ messageId, type, summary, draftReply }) => {
+        await postJson("/api/messages/triage", { id: messageId, type, summary, draftReply });
         await refresh();
         return `Triaged ${messageId} as ${type}.`;
       },
-      render: ({ args }: { args: { type?: string; summary?: string } }) => (
-        <TriageCard type={args.type} summary={args.summary} />
+      render: ({ args }: { args: { messageId?: string; type?: string; summary?: string; draftReply?: string } }) => (
+        <TriageCard
+          messageId={args.messageId}
+          type={args.type}
+          summary={args.summary}
+          reply={args.draftReply ? { text: args.draftReply, status: "draft" } : undefined}
+        />
       ),
     },
     [refresh],
@@ -153,7 +164,13 @@ export function Inbox() {
               </div>
               <p style={{ margin: "6px 0 8px" }}>{m.text}</p>
               {m.triage ? (
-                <TriageCard type={m.triage.type} summary={m.triage.summary} />
+                <TriageCard
+                  messageId={m.id}
+                  type={m.triage.type}
+                  summary={m.triage.summary}
+                  text={m.text}
+                  reply={m.triage.reply}
+                />
               ) : (
                 <span className="ck-muted" style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   untriaged

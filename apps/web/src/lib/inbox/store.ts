@@ -1,5 +1,5 @@
 import type { InboundMessage } from "../telegram/index";
-import type { StoredMessage, TriageResult } from "./types";
+import type { StoredMessage, TelegramReply, TriageResult } from "./types";
 import { messageKey } from "./types";
 
 /**
@@ -40,6 +40,33 @@ export class MessageStore {
     const existing = this.messages.get(id);
     if (!existing) return false;
     this.messages.set(id, { ...existing, triage });
+    return true;
+  }
+
+  /**
+   * Atomically reserve a question reply before the network call. This prevents
+   * a double-click from posting the same customer reply twice in this process.
+   */
+  reserveReply(id: string, text: string): "reserved" | "missing" | "not-question" | "already-sent" | "in-progress" {
+    const existing = this.messages.get(id);
+    if (!existing) return "missing";
+    if (existing.triage?.type !== "question") return "not-question";
+
+    const status = existing.triage.reply?.status;
+    if (status === "sent") return "already-sent";
+    if (status === "sending") return "in-progress";
+
+    this.messages.set(id, {
+      ...existing,
+      triage: { ...existing.triage, reply: { text, status: "sending" } },
+    });
+    return "reserved";
+  }
+
+  setReply(id: string, reply: TelegramReply): boolean {
+    const existing = this.messages.get(id);
+    if (!existing || existing.triage?.type !== "question") return false;
+    this.messages.set(id, { ...existing, triage: { ...existing.triage, reply } });
     return true;
   }
 }

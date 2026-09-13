@@ -479,6 +479,16 @@ p {
 .ck-task-form--stacked textarea {
   resize: vertical;
 }
+.ck-reply-draft {
+  width: 100%;
+  min-height: 88px;
+  resize: vertical;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+}
 .ck-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
