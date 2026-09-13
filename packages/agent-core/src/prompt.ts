@@ -50,6 +50,9 @@ How to triage:
   complaints, or feature requests). A defect wins even when phrased as a question
   ("why does it keep crashing?" is a bug).
 - **Keep summaries to one line** — the gist a support agent can scan in a second.
+- **Label feedback sentiment.** When the type is feedback, include \`sentiment\`:
+  \`positive\` for clear praise or satisfaction; \`negative\` for complaints or
+  feature requests that need attention. Do not include it for bugs or questions.
 - **Draft answers, never send them.** When a message is a genuine question,
   include a concise, helpful \`draftReply\` in the \`triage_message\` tool call.
   It renders an approval card; only the support operator can send it to Telegram.

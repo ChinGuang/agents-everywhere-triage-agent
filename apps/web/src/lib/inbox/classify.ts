@@ -1,9 +1,13 @@
 import type { IssueType, TriageResult } from "./types";
+import { detectFeedbackSentiment } from "./sentiment";
 
 const BUG_SIGNAL =
   /\b(bug|error|crash(?:ed|ing|es)?|broken|doesn'?t work|does not work|isn'?t working|not working|can'?t|cannot|fails?|failed|failing|freeze|frozen|stuck|glitch)\b/;
 
 const QUESTION_START = /^(how|what|why|when|where|which|who|can|could|do|does|did|is|are|should|would|will)\b/;
+
+// Requests are feedback even when they are phrased politely as a question.
+const FEATURE_REQUEST_SIGNAL = /\b(please add|could you add|would love|feature request|i wish)\b/;
 
 const SUMMARY_MAX = 80;
 
@@ -23,12 +27,18 @@ export function classifyMessage(text: string): TriageResult {
   let type: IssueType;
   if (BUG_SIGNAL.test(normalized)) {
     type = "bug";
+  } else if (FEATURE_REQUEST_SIGNAL.test(normalized)) {
+    type = "feedback";
   } else if (text.trim().endsWith("?") || QUESTION_START.test(text.trim().toLowerCase())) {
     type = "question";
   } else {
     type = "feedback";
   }
-  return { type, summary: summarize(text) };
+  return {
+    type,
+    summary: summarize(text),
+    ...(type === "feedback" ? { sentiment: detectFeedbackSentiment(text) } : {}),
+  };
 }
 
 function summarize(text: string): string {

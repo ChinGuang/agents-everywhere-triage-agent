@@ -13,8 +13,16 @@ export function isIssueType(value: unknown): value is IssueType {
 export interface TriageResult {
   type: IssueType;
   summary: string;
+  /** Present only for feedback, so a support agent can scan customer mood. */
+  sentiment?: FeedbackSentiment;
   /** A proposed answer for a customer question. It must be approved before sending. */
   reply?: TelegramReply;
+}
+
+export type FeedbackSentiment = "positive" | "negative";
+
+export function isFeedbackSentiment(value: unknown): value is FeedbackSentiment {
+  return value === "positive" || value === "negative";
 }
 
 export type TelegramReplyStatus = "draft" | "sending" | "sent" | "failed";

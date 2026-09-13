@@ -34,6 +34,7 @@ describe("classifyMessage — type", () => {
       "I love the new dashboard, great work!",
       "The app is way too slow for me",
       "Please add a dark mode",
+      "Could you add a dark mode? The white background is rough at night.",
     ]) {
       assert.equal(classifyMessage(text).type, "feedback", text);
     }
@@ -41,6 +42,11 @@ describe("classifyMessage — type", () => {
 
   it("does not treat a bare number like a price as a bug", () => {
     assert.equal(classifyMessage("I paid $500 and I love the product").type, "feedback");
+  });
+
+  it("adds a sentiment label to offline feedback", () => {
+    assert.equal(classifyMessage("I love the new dashboard!").sentiment, "positive");
+    assert.equal(classifyMessage("Please add a dark mode").sentiment, "negative");
   });
 });
 
