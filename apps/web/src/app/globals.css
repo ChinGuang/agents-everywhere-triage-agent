@@ -261,6 +261,13 @@ p {
   flex: 1;
   min-height: 0;
 }
+/* CopilotKit's chat welcome/greeting text is faint by default, which is hard to
+   read and doesn't match the Penpot design's dark assistant text. Force it onto
+   the app's ink token so it's legible and on-brand. */
+.ck-chat [data-testid="copilot-welcome-screen"],
+.ck-chat [data-testid="copilot-welcome-screen"] * {
+  color: var(--text);
+}
 .ck-sr-only {
   position: absolute;
   width: 1px;
@@ -346,6 +353,18 @@ p {
 }
 .ck-card p:last-child {
   margin-bottom: 0;
+}
+/* Triage / approval cards also render inside CopilotKit's chat stream, which
+   forces a faint text colour on message content — making the summary nearly
+   invisible. Keep our card text on the app's ink token there (muted text stays
+   the muted token). !important is needed to beat CopilotKit's own rule. */
+.ck-chat .ck-card,
+.ck-chat .ck-card h3,
+.ck-chat .ck-card p {
+  color: var(--text) !important;
+}
+.ck-chat .ck-card .ck-muted {
+  color: var(--muted) !important;
 }
 .ck-gate-done {
   font-style: italic;
