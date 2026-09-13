@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { buildIssueFromMessage, createGithubIssue, GithubApiError, type FetchLike } from "./issue";
+import { createGithubIssue, GithubApiError, type FetchLike } from "./issue";
 
 function jsonResponse(body: unknown, init?: { ok?: boolean; status?: number }): Response {
   return {
@@ -9,28 +9,6 @@ function jsonResponse(body: unknown, init?: { ok?: boolean; status?: number }): 
     json: async () => body,
   } as unknown as Response;
 }
-
-describe("buildIssueFromMessage", () => {
-  it("uses the summary as the title and includes the message and sender in the body", () => {
-    const draft = buildIssueFromMessage({
-      fromName: "Ada",
-      text: "The export button does nothing when clicked.",
-      type: "bug",
-      summary: "Export button is broken",
-    });
-    assert.equal(draft.title, "Export button is broken");
-    assert.match(draft.body, /From: Ada/);
-    assert.match(draft.body, /Triaged as: bug/);
-    assert.match(draft.body, /export button does nothing/i);
-  });
-
-  it("falls back to the message text when there is no summary, and truncates long titles", () => {
-    const draft = buildIssueFromMessage({ fromName: "X", text: "a".repeat(200) });
-    assert.ok(draft.title.length <= 121);
-    assert.ok(draft.title.endsWith("…"));
-    assert.doesNotMatch(draft.body, /Triaged as/); // no type given
-  });
-});
 
 describe("createGithubIssue", () => {
   it("POSTs to the repo's issues endpoint with auth + payload and returns number/url", async () => {
@@ -51,6 +29,8 @@ describe("createGithubIssue", () => {
     assert.equal(url, "https://api.github.com/repos/o/r/issues");
     assert.equal(init?.method, "POST");
     assert.equal((init?.headers as Record<string, string>).authorization, "Bearer TOKEN123");
+    // GitHub rejects requests without a User-Agent — it must always be sent.
+    assert.equal((init?.headers as Record<string, string>)["user-agent"], "triage-agent");
     assert.deepEqual(JSON.parse(String(init?.body)), { title: "Bug", body: "it broke" });
   });
 

@@ -46,7 +46,7 @@ export function GithubIssueApproval({ args, respond, result }: Props) {
       const res = await fetch("/api/github/issue", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ title: args.title, body: args.body }),
+        body: JSON.stringify({ title: args.title, body: args.body ?? "" }),
       });
       const data = (await res.json()) as { number?: number; url?: string; error?: string };
       if (!res.ok || typeof data.url !== "string" || typeof data.number !== "number") {

@@ -1,5 +1,3 @@
-import type { IssueType } from "../inbox/types";
-
 /** Minimal fetch surface we depend on — lets tests inject a fake. */
 export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
 
@@ -28,36 +26,6 @@ export class GithubApiError extends Error {
   }
 }
 
-const TITLE_MAX = 120;
-
-/**
- * Build a GitHub issue from a triaged bug message. Pure and total: given a
- * customer message (and its triage, if known) it produces a title and a body,
- * so the interesting logic can be tested without a network or an LLM.
- */
-export function buildIssueFromMessage(input: {
-  fromName: string;
-  text: string;
-  type?: IssueType;
-  summary?: string;
-}): GithubIssueDraft {
-  const raw = (input.summary?.trim() || input.text.trim()).replace(/\s+/g, " ");
-  const title = (raw.length > TITLE_MAX ? `${raw.slice(0, TITLE_MAX)}…` : raw) || "Customer-reported issue";
-  const body = [
-    "**Reported by a customer via Telegram triage.**",
-    "",
-    `- From: ${input.fromName}`,
-    input.type ? `- Triaged as: ${input.type}` : undefined,
-    "",
-    "> " + input.text.trim().replace(/\n/g, "\n> "),
-    "",
-    "_Filed automatically by the support triage agent._",
-  ]
-    .filter((line): line is string => line !== undefined)
-    .join("\n");
-  return { title, body };
-}
-
 /**
  * Create a GitHub issue in `config.repo` ("owner/name") using a token. Injectable
  * fetch for tests. Errors surface as GithubApiError with GitHub's own message.
@@ -80,6 +48,8 @@ export async function createGithubIssue(
         authorization: `Bearer ${config.token}`,
         accept: "application/vnd.github+json",
         "content-type": "application/json",
+        // GitHub's REST API rejects requests without a User-Agent (403).
+        "user-agent": "triage-agent",
         "x-github-api-version": "2022-11-28",
       },
       body: JSON.stringify({ title: draft.title, body: draft.body }),
