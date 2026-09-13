@@ -69,17 +69,24 @@ export function Inbox() {
           .describe(
             "For a question only: a concise, helpful answer to propose to the customer. This stays a draft until a human approves Send.",
           ),
+        sentiment: z
+          .enum(["positive", "negative"])
+          .optional()
+          .describe(
+            "For feedback only: positive for clear praise or satisfaction; negative for a complaint or request needing attention.",
+          ),
       }),
-      handler: async ({ messageId, type, summary, draftReply }) => {
-        await postJson("/api/messages/triage", { id: messageId, type, summary, draftReply });
+      handler: async ({ messageId, type, summary, draftReply, sentiment }) => {
+        await postJson("/api/messages/triage", { id: messageId, type, summary, draftReply, sentiment });
         await refresh();
         return `Triaged ${messageId} as ${type}.`;
       },
-      render: ({ args }: { args: { messageId?: string; type?: string; summary?: string; draftReply?: string } }) => (
+      render: ({ args }: { args: { messageId?: string; type?: string; summary?: string; draftReply?: string; sentiment?: "positive" | "negative" } }) => (
         <TriageCard
           messageId={args.messageId}
           type={args.type}
           summary={args.summary}
+          sentiment={args.sentiment}
           reply={args.draftReply ? { text: args.draftReply, status: "draft" } : undefined}
         />
       ),
@@ -168,6 +175,7 @@ export function Inbox() {
                   messageId={m.id}
                   type={m.triage.type}
                   summary={m.triage.summary}
+                  sentiment={m.triage.sentiment}
                   text={m.text}
                   reply={m.triage.reply}
                 />

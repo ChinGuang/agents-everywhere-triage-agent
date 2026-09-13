@@ -1,5 +1,5 @@
 import React from "react";
-import type { IssueType, TelegramReply } from "@/lib/inbox/types";
+import type { FeedbackSentiment, IssueType, TelegramReply } from "@/lib/inbox/types";
 import { TelegramReplyApproval } from "./telegram-reply-approval";
 
 // Tool arguments arrive incrementally, before the schema settles — every field
@@ -8,6 +8,7 @@ export interface TriageCardProps {
   messageId?: string;
   type?: string;
   summary?: string;
+  sentiment?: FeedbackSentiment;
   text?: string;
   reply?: TelegramReply;
 }
@@ -45,13 +46,34 @@ export function TriageBadge({ type }: { type?: string }) {
   );
 }
 
+export function FeedbackSentimentBadge({ sentiment }: { sentiment?: FeedbackSentiment }) {
+  if (!sentiment) return null;
+  const positive = sentiment === "positive";
+  return (
+    <span
+      aria-label={positive ? "Positive feedback" : "Feedback needs attention"}
+      style={{
+        fontSize: 11,
+        fontWeight: 700,
+        color: positive ? "#0f9d84" : "#b54708",
+        background: positive ? "rgba(15,157,132,0.15)" : "rgba(181,71,8,0.13)",
+        borderRadius: 6,
+        padding: "2px 8px",
+      }}
+    >
+      {positive ? "👍 Positive" : "👎 Needs attention"}
+    </span>
+  );
+}
+
 /** Generative-UI Triage Card: Issue Type + one-line summary for a Message. */
-export function TriageCard({ messageId, type, summary, text, reply }: TriageCardProps) {
+export function TriageCard({ messageId, type, summary, sentiment, text, reply }: TriageCardProps) {
   const s = styleFor(type);
   return (
     <article className="ck-card" style={{ borderLeftColor: s.color }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         <TriageBadge type={type} />
+        {type === "feedback" ? <FeedbackSentimentBadge sentiment={sentiment} /> : null}
         <p style={{ margin: 0, fontWeight: 600 }}>{summary || "Reading the message…"}</p>
         {text && text !== summary ? (
           <p className="ck-muted" style={{ margin: 0, fontSize: 13 }}>
